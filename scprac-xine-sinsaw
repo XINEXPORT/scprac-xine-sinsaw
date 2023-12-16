@@ -1,5 +1,4 @@
 //SC PRACTICE
-//SC PRACTICE, Composing a Piece
 
 (
 SynthDef (\xine, {arg out = 0, freq = 150, pan = 0, rate = 1, amp = 0.2, gate = 1, mul = 2;
