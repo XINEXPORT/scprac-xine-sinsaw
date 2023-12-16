@@ -1,4 +1,4 @@
-//SC PRACTICE
+//SC PRACTICE, Composing a Piece
 
 (
 SynthDef (\xine, {arg out = 0, freq = 150, pan = 0, rate = 1, amp = 0.2, gate = 1, mul = 2;
@@ -139,173 +139,9 @@ s.reboot;
 
 b = Pbind(
 	TempoClock(60/60);
-	\instrument,\bpfsaw,
+	\instrument,\Sinsaw,
     \dur,Pwhite(4.5,1,inf),
 	\midinote, Pxrand([
-		[84,86,88,62],
-		[75,73,70,69,68,67],
-		[32,41,43,45,47,49],
-		[40,46,44,48],
-		[24,26,38,82,37],
-		[31,33,35,39,41],
-		],inf),
-    \detune, Pexprand(0.2, 0.5, inf),
-	\cfmin, 100,
-	\cfmax, 1500,
-	\rqmin, Pexprand(0.01,0.15,inf),
-	\atk, Pwhite(1,2,inf),
-	\rel,Pwhite(1,2.0,inf),
-	\ldb,6,
-	\amp,0.4,
-	\out, 0,
-).trace.play;
-
-c = Pbind(
-	TempoClock(60/60);
-	\instrument,\bpfsaw,
-    \dur,Pwhite(4.5,1,inf),
-	\midinote, Pxrand([
-		[84,86,88,62],
-		[75,73,70,69,68,67],
-		[32,41,43,45,47,49],
-		[40,46,44,48],
-		[24,26,38,82,37],
-		[31,33,35,39,41],
-		],inf),
-    \detune, Pexprand(0.2, 0.5, inf),
-	\cfmin, 100,
-	\cfmax, 1500,
-	\rqmin, Pexprand(0.01,0.15,inf),
-	\atk, Pwhite(1,2,inf),
-	\rel,Pbrown(1,2.0,inf),
-	\ldb,6,
-	\amp,0.4,
-	\out, 0,
-).trace.play;
-}.fork;
-)
-
-a.stop;
-b.stop;
-c.stop;
-(
-SynthDef (\xine, {arg out = 0, freq = 150, pan = 0, rate = 1, amp = 0.2, gate = 1, mul = 2;
-	var snd, env;
-	env = Env.adsr(
-		attackTime:0.1,
-		decayTime: 0.8,
-		sustainLevel: 1,
-		peakLevel: 3,
-		curve:1,)
-		.kr(gate: gate, doneAction:2);
-	snd = HPF.ar(
-			in: Saw.ar(
-			freq: freq,
-			mul: mul,
-		));
-	snd = snd*env;
-	snd = BPF.ar(
-		in: Saw.ar(
-			freq: freq,
-			mul: mul));
-	snd = Mix.ar(snd);
-		Out.ar(0,Pan2.ar(snd, pan, amp));
-}).add;
-)
-
-
-(
-SynthDef(\Sinsaw, {arg out = 0, freq= Pwhite (0,50), pan = 0, rate=1, amp=0.2, gate=1;
-	var acco, snd;
-	acco = Env.adsr(
-		attackTime:0.1,
-		decayTime:0.5,
-		sustainLevel:0.5,
-		releaseTime:0.8,
-		peakLevel:1,
-		curve:-4.0,
-		bias:0).kr(gate: gate, doneAction:2);
-	snd = BPF.ar(
-		in: Saw.ar(
-			freq: freq,
-			feedback:0.2,
-	));
-	snd = snd*acco;
-	snd = Mix.ar(snd);
-	snd = BPF.ar(
-		in: Saw.ar(freq: freq));
-		Out.ar(0,Pan2.ar (snd, pan, amp));
-}).add;
-)
-
-//SOUND TEST
-(1..20).choose.do {Synth(\Sinsaw, [\amp,0.1, \detune, 0.1])};
-(1..5).choose.do {Synth(\xine, [\amp,0.5, \detune, 1])};
-
-
-(
-10.do{
-	Synth(
-		\Sinsaw,
-		[
-			\freq, 50,
-			\amp, 1,
-			\cfmin,50*4,
-			\cfmax,50*50,
-			\rqmin, 0.005*3,
-			\rqmax,0.03,
-			\pan,1,
-		],
-	);
-};
-)
-
-// multichannel expansion - 8 channels
-s.options.numOutputBusChannels_(8)
-s.reboot;
-
-
-(
-[55,41,20,65,62,72,45,65].midicps.do{
-	arg f;
-	Synth(\Sinsaw,
-	[
-			\freq, (Scale.hexDorian.degrees+60).midicps.choose,
-			\amp, 0.5,
-			\cf, exprand (300, 5000),
-			\rq, exprand (0.003, 0.09),
-			\atk,exprand (1,3),
-			\sus,exprand (0.1,0.2),
-	]
-);
-};
-)
-
-
-(
-(1..8).choose.do{
-	Synth(\xine,
-	[
-			\freq, (Scale.dorian.degrees+60).midicps.choose,
-			\amp, 1,
-			\cf, exprand (100, 5000),
-			\rq, exprand (0.03, 0.9),
-			\atk,exprand (1,3),
-			\sus,exprand (0.1,0.3),
-	]
-);
-};
-)
-
-
-// ATONALSYNTH
-
-(
-{a = Pbind(
-	TempoClock(60/60);
-	\instrument,\xine,
-	\dur,Pbrown(1,1),
-	\midinote, Prand([
 		[0,12,24,36],
 		[0,12,24,48],
 		[0,12,24,60],
@@ -319,30 +155,6 @@ s.reboot;
 	\rqmin, Pexprand(0.01,0.15,inf),
 	\atk, Pwhite(1,2,inf),
 	\rel,Pwhite(1,2.0,inf),
-	\ldb,3,
-	\amp,0.4,
-	\out, 0,
-).trace.play;
-6.wait;
-
-b = Pbind(
-	TempoClock(60/60);
-	\instrument,\bpfsaw,
-    \dur,Pwhite(4.5,1,inf),
-	\midinote, Pxrand([
-		[84,86,88,62],
-		[75,73,70,69,68,67],
-		[32,41,43,45,47,49],
-		[40,46,44,48],
-		[24,26,38,82,37],
-		[31,33,35,39,41],
-		],inf),
-    \detune, Pexprand(0.2, 0.5, inf),
-	\cfmin, 100,
-	\cfmax, 1500,
-	\rqmin, Pexprand(0.01,0.15,inf),
-	\atk, Pwhite(1,2,inf),
-	\rel,Pwhite(1,2.0,inf),
 	\ldb,6,
 	\amp,0.4,
 	\out, 0,
@@ -350,15 +162,15 @@ b = Pbind(
 
 c = Pbind(
 	TempoClock(60/60);
-	\instrument,\bpfsaw,
+	\instrument,\Sinsaw,
     \dur,Pwhite(4.5,1,inf),
 	\midinote, Pxrand([
-		[84,86,88,62],
-		[75,73,70,69,68,67],
-		[32,41,43,45,47,49],
-		[40,46,44,48],
-		[24,26,38,82,37],
-		[31,33,35,39,41],
+		[0,12,24,36],
+		[0,12,24,48],
+		[0,12,24,60],
+		[0,12,24,72],
+		[0,12,24,84],
+		[0,12,24,96],
 		],inf),
     \detune, Pexprand(0.2, 0.5, inf),
 	\cfmin, 100,
